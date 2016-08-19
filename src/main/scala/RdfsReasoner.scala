@@ -1,4 +1,5 @@
 import org.apache.jena.ontology.{OntClass, OntModelSpec}
+import org.apache.jena.query.{QueryFactory, QueryExecutionFactory}
 import org.apache.jena.rdf.model.{Model, ModelFactory}
 import org.apache.jena.reasoner.ReasonerRegistry
 import org.apache.jena.riot.RDFDataMgr
@@ -9,9 +10,9 @@ object RdfsReasoner {
 
   def inferModel(model : Model, method: String): Model = {
     if (method == InferenceMethod.JENA)
-       inferModelWithJena(model)
+      inferModelWithJena(model)
     else
-      null
+      inferModelWithSparql(model)
   }
 
   private def inferModelWithJena(model : Model): Model = {
@@ -28,7 +29,24 @@ object RdfsReasoner {
   }
 
   private def inferModelWithSparql(model : Model): Model = {
-    null
+    val query = QueryFactory.create(
+      s"""
+         |PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+         |PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+         |PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+         |CONSTRUCT   {
+         |  ?s a ?sc .
+         |  ?s ?sp ?o .
+         |}
+         |WHERE
+         |{
+         |  ?s ?p ?o .
+         |  ?s a foaf:Person .
+         |  OPTIONAL{ foaf:Person rdfs:subClassOf* ?sc . }
+         |  OPTIONAL{ ?p  rdfs:subPropertyOf* ?sp . }
+         |}
+          """.stripMargin)
+    QueryExecutionFactory.create(query, model).execConstruct()
   }
 
   def inferModel(filePath: String, method: String) : Model = {

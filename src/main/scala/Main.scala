@@ -5,7 +5,7 @@ object Main {
 
   def main(args: Array[String]) = {
     println("Starting the reasoner!")
-    val infeModel = RdfsReasoner.inferModel(getClass.getClassLoader.getResource("fuhsen.ttl").getPath, InferenceMethod.JENA)
+    val infeModel = RdfsReasoner.inferModel(getClass.getClassLoader.getResource("fuhsen.ttl").getPath, InferenceMethod.SPARQL)
     println("Inferred Model Size: "+infeModel.size())
 
     val listStatements = infeModel.listStatements()
