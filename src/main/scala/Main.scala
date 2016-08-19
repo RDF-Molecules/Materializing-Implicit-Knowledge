@@ -4,13 +4,28 @@
 object Main {
 
   def main(args: Array[String]) = {
-    println("Starting the reasoner!")
-    val infeModel = RdfsReasoner.inferModel(getClass.getClassLoader.getResource("fuhsen.ttl").getPath, InferenceMethod.SPARQL)
-    println("Inferred Model Size: "+infeModel.size())
 
-    val listStatements = infeModel.listStatements()
-    while (listStatements.hasNext)
-      println(listStatements.nextStatement().toString)
+    val x = "SaveInFile"
+    val inferenceMethod = InferenceMethod.JENA
+    val file = "additionalSem.nt"
+
+    println("Starting the reasoner!")
+    x match {
+      case "Print" => {
+        val infeModel = RdfsReasoner.inferModel(getClass.getClassLoader.getResource(file).getPath, inferenceMethod)
+        println("Inferred Model Size: "+infeModel.size())
+
+        val listStatements = infeModel.listStatements()
+        while (listStatements.hasNext)
+          println(listStatements.nextStatement().toString)
+      }
+      case "SaveInFile" => {
+        val outPutFile = "C:\\DIC\\Temp\\materialized-knowledge.nt"
+        val size = RdfsReasoner.inferModel(getClass.getClassLoader.getResource(file).getPath, inferenceMethod, outPutFile)
+        println("Inferred Model Size: "+size)
+      }
+    }
+
   }
 
 }

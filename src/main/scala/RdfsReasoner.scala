@@ -2,7 +2,8 @@ import org.apache.jena.ontology.{OntClass, OntModelSpec}
 import org.apache.jena.query.{QueryFactory, QueryExecutionFactory}
 import org.apache.jena.rdf.model.{Model, ModelFactory}
 import org.apache.jena.reasoner.ReasonerRegistry
-import org.apache.jena.riot.RDFDataMgr
+import org.apache.jena.riot.{Lang, RDFDataMgr}
+import java.io.{OutputStream, FileOutputStream, File}
 /**
   * Created by dcollarana on 8/12/2016.
   */
@@ -54,8 +55,17 @@ object RdfsReasoner {
     inferModel(RDFDataMgr.loadModel(filePath), method)
   }
 
-  def inferModel(sourceFilePath: String, method: String, destinyFilePath: String) = {
-    println("Hello World")
+  def inferModel(sourceFilePath: String, method: String, destinyFilePath: String) : Long = {
+    val modelResult = inferModel(RDFDataMgr.loadModel(sourceFilePath), method)
+    //Writing infered model in a File
+    val file = new File(destinyFilePath)
+    val fop = new FileOutputStream(file).asInstanceOf[OutputStream]
+    // if file doesnt exists, then create it
+    if (!file.exists()) {
+      file.createNewFile()
+    }
+    RDFDataMgr.write( fop, modelResult, Lang.NTRIPLES)
+    modelResult.size()
   }
 
 }
