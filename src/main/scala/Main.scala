@@ -7,7 +7,7 @@ object Main {
 
     val x = "SaveInFile"
     val inferenceMethod = InferenceMethod.JENA
-    val file = "additionalSem.nt"
+    val file = "fuhsen.ttl"
 
     println("Starting the reasoner!")
     x match {
