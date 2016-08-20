@@ -1,4 +1,4 @@
-name := "SbtTest"
+name := "MateriliazingImplicitKnowledge"
 
 version := "1.0"
 
