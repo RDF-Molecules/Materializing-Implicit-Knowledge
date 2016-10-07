@@ -6,8 +6,8 @@ object Main {
   def main(args: Array[String]) = {
 
     val x = "SaveInFile"
-    val inferenceMethod = InferenceMethod.SPARQL
-    val file = "fuhsen.ttl"
+    val inferenceMethod = InferenceMethod.JENA
+    val file = "unified_dump0.nt"
 
     println("Starting the reasoner!")
     x match {
@@ -20,7 +20,7 @@ object Main {
           println(listStatements.nextStatement().toString)
       }
       case "SaveInFile" => {
-        val outPutFile = "C:\\DIC\\Temp\\materialized-knowledge.nt"
+        val outPutFile = "C:\\DIC\\Temp\\materialized-knowledge0.nt"
         val size = RdfsReasoner.inferModel(getClass.getClassLoader.getResource(file).getPath, inferenceMethod, outPutFile)
         println("Inferred Model Size: "+size)
       }
