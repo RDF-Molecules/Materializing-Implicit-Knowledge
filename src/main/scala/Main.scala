@@ -6,8 +6,8 @@ object Main {
   def main(args: Array[String]) = {
 
     val x = "SaveInFile"
-    val inferenceMethod = InferenceMethod.JENA
-    val file = "unified_dump0.nt"
+    val inferenceMethod = InferenceMethod.SPARQL
+    val file = "fuhsen.ttl"
 
     println("Starting the reasoner!")
     x match {

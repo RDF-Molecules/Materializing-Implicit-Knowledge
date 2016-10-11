@@ -3,7 +3,7 @@ import org.apache.jena.query.{QueryFactory, QueryExecutionFactory}
 import org.apache.jena.rdf.model.{Model, ModelFactory}
 import org.apache.jena.reasoner.ReasonerRegistry
 import org.apache.jena.riot.{Lang, RDFDataMgr}
-import java.io.{OutputStreamWriter, OutputStream, FileOutputStream, File}
+import java.io._
 /**
   * Created by dcollarana on 8/12/2016.
   */
@@ -32,7 +32,13 @@ object RdfsReasoner {
   private def inferModelWithSparql(model : Model): Model = {
     val query = QueryFactory.create(
       s"""
-         CONSTRUCT   {
+         |PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+         |PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+         |PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+         |PREFIX dct: <http://purl.org/dc/terms/>
+         |PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+         |
+         | CONSTRUCT   {
          |  ?s a ?sc .
          |  ?s ?sp ?o .
          |  ?s dct:subject ?broaderSub .
@@ -43,14 +49,12 @@ object RdfsReasoner {
          |  ?s a foaf:Person .
          |  OPTIONAL{ foaf:Person rdfs:subClassOf* ?sc . }
          |  OPTIONAL{ ?p  rdfs:subPropertyOf* ?sp . }
-         |  OPTIONAL{ ?o  skos:broader/* ?spb . }
          |  OPTIONAL{
          |            ?o  dct:subject ?spb .
          |            ?spb skos:broader* ?broaderSub .
-         |	          Filter (!isBlank(?broaderSub ))
+         |	          Filter (!isBlank(?broaderSub )) .
          |          }
          |}
-         |
           """.stripMargin)
     QueryExecutionFactory.create(query, model).execConstruct()
   }
@@ -64,12 +68,17 @@ object RdfsReasoner {
     val modelResult = inferModel(RDFDataMgr.loadModel(sourceFilePath), method)
     //Writing infered model in a File
     val file = new File(destinyFilePath)
-    val fop = new FileOutputStream(file).asInstanceOf[OutputStream]
     // if file doesnt exists, then create it
     if (!file.exists()) {
       file.createNewFile()
     }
-    RDFDataMgr.write(fop, modelResult, Lang.NTRIPLES)
+
+    //val fop = new FileOutputStream(file).asInstanceOf[OutputStream]
+    val out = new BufferedWriter(new OutputStreamWriter(
+      new FileOutputStream(file), "UTF-8"));
+
+    //modelResult.write(out, Lang.NTRIPLES.toString)
+    RDFDataMgr.write(out, modelResult, Lang.NTRIPLES)
     modelResult.size()
   }
 
@@ -89,5 +98,31 @@ def inputToFile(is: java.io.InputStream, f: java.io.File) {
   val out = new java.io.PrintWriter(f)
   try { in.getLines().foreach(out.print(_)) }
   finally { out.close }
+}
+ */
+
+/*
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+ CONSTRUCT   {
+  ?s a ?sc .
+  ?s ?sp ?o .
+  ?s dct:subject ?broaderSub .
+}
+WHERE
+{
+  ?s ?p ?o .
+  ?s a foaf:Person .
+  OPTIONAL{ foaf:Person rdfs:subClassOf* ?sc . }
+  OPTIONAL{ ?p  rdfs:subPropertyOf* ?sp . }
+  OPTIONAL{
+            ?o  dct:subject ?spb .
+            ?spb skos:broader* ?broaderSub .
+	          Filter (!isBlank(?broaderSub )) .
+          }
 }
  */
