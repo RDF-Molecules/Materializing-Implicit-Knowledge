@@ -9,11 +9,22 @@ import java.io._
   */
 object RdfsReasoner {
 
-  def inferModel(model : Model, method: String): Model = {
+
+  def inferModel(models: List[Model], method: String): Model = {
     if (method == InferenceMethod.JENA)
-      inferModelWithJena(model)
+      inferModelWithJena(
+        mergeModels(models)
+      )
     else
-      inferModelWithSparql(model)
+      inferModelWithSparql(
+        mergeModels(models)
+      )
+  }
+
+  private def mergeModels(models : List[Model]) : Model = {
+    val model = ModelFactory.createDefaultModel()
+    models.map( current => model.add(current))
+    model
   }
 
   private def inferModelWithJena(model : Model): Model = {
@@ -57,29 +68,6 @@ object RdfsReasoner {
          |}
           """.stripMargin)
     QueryExecutionFactory.create(query, model).execConstruct()
-  }
-
-  def inferModel(filePath: String, method: String) : Model = {
-    // Reading fuhsen data
-    inferModel(RDFDataMgr.loadModel(filePath), method)
-  }
-
-  def inferModel(sourceFilePath: String, method: String, destinyFilePath: String) : Long = {
-    val modelResult = inferModel(RDFDataMgr.loadModel(sourceFilePath), method)
-    //Writing infered model in a File
-    val file = new File(destinyFilePath)
-    // if file doesnt exists, then create it
-    if (!file.exists()) {
-      file.createNewFile()
-    }
-
-    //val fop = new FileOutputStream(file).asInstanceOf[OutputStream]
-    val out = new BufferedWriter(new OutputStreamWriter(
-      new FileOutputStream(file), "UTF-8"));
-
-    //modelResult.write(out, Lang.NTRIPLES.toString)
-    RDFDataMgr.write(out, modelResult, Lang.NTRIPLES)
-    modelResult.size()
   }
 
 }

@@ -1,3 +1,7 @@
+import java.io.{OutputStream, FileOutputStream, File}
+
+import org.apache.jena.riot.{Lang, RDFDataMgr}
+
 /**
   * Created by dcollarana on 8/16/2016.
   */
@@ -7,27 +11,38 @@ object Main {
 
     val x = "SaveInFile"
     val inferenceMethod = InferenceMethod.SPARQL
-    val file = "fuhsen.ttl"
+
+    val files = List( getClass.getClassLoader.getResource("fuhsen.ttl").getPath
+                    )
 
     println("Starting the reasoner!")
+
+    val infeModel = RdfsReasoner.inferModel(
+      files.map(RDFDataMgr.loadModel(_))
+      , inferenceMethod)
+
+    println("Inferred Model Size: "+infeModel.size())
+
     x match {
       case "Print" => {
-        val infeModel = RdfsReasoner.inferModel(getClass.getClassLoader.getResource(file).getPath, inferenceMethod)
         println("Inferred Model Size: "+infeModel.size())
-
         val listStatements = infeModel.listStatements()
         while (listStatements.hasNext)
           println(listStatements.nextStatement().toString)
       }
       case "SaveInFile" => {
         val outPutFile = "C:\\DIC\\Temp\\materialized-knowledge0.nt"
-        val size = RdfsReasoner.inferModel(getClass.getClassLoader.getResource(file).getPath, inferenceMethod, outPutFile)
-        println("Inferred Model Size: "+size)
+        //Writing infered model in a File
+        val file = new File(outPutFile)
+        val fop = new FileOutputStream(file).asInstanceOf[OutputStream]
+        // if file doesnt exists, then create it
+        if (!file.exists()) {
+          file.createNewFile()
+        }
+        RDFDataMgr.write(fop, infeModel, Lang.NTRIPLES)
       }
     }
-
   }
-
 }
 
 //PREFIX fs: <http://vocab.lidakra.de/fuhsen#>
