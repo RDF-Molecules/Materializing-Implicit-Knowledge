@@ -75,6 +75,8 @@ object RdfsReasoner {
          |CONSTRUCT   {
          |  ?gene ?restriction ?gobjective .
          |  ?gene ?restriction ?scgobjective .
+         |  ?gene ?restrictionParent ?gobjective .
+         |  ?gene ?restrictionParent ?scgobjective .
          |}
          |WHERE
          |{
@@ -83,6 +85,7 @@ object RdfsReasoner {
          |  ?gene rdfs:subClassOf ?og .
          |  ?og a owl:Restriction .
          |  ?og owl:onProperty ?restriction .
+         |  OPTIONAL { ?restriction rdfs:subPropertyOf* ?restrictionParent . } .
          |  ?og owl:someValuesFrom ?gobjective .
          |  ?gobjective rdfs:subClassOf* ?scgobjective .
          |}
