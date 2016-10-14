@@ -73,14 +73,18 @@ object RdfsReasoner {
          |PREFIX owl: <http://www.w3.org/2002/07/owl#>
          |
          |CONSTRUCT   {
-         |  ?s <http://example.org/GO#hasAnnotation> ?sc .
+         |  ?gene ?restriction ?gobjective .
+         |  ?gene ?restriction ?scgobjective .
          |}
          |WHERE
          |{
-         |  ?s <http://example.org/GO#hasAnnotation> ?o .
-         |  ?o a owl:Class .
-         |  ?o rdfs:subClassOf* ?sc .
-         |  Filter (!isBlank(?sc)) .
+         |  ?s <http://example.org/GO#hasAnnotation> ?gene .
+         |  ?gene a owl:Class .
+         |  ?gene rdfs:subClassOf ?og .
+         |  ?og a owl:Restriction .
+         |  ?og owl:onProperty ?restriction .
+         |  ?og owl:someValuesFrom ?gobjective .
+         |  ?gobjective rdfs:subClassOf* ?scgobjective .
          |}
           """.stripMargin)
     QueryExecutionFactory.create(query, model).execConstruct()
@@ -167,5 +171,29 @@ WHERE
   ?o a owl:Class .
   ?o rdfs:subClassOf* ?sc .
   Filter (!isBlank(?sc)) .
+}
+ */
+
+/*
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+CONSTRUCT   {
+  ?gene ?restriction ?gobjective .
+  ?gene ?restriction ?scgobjective .
+}
+WHERE
+{
+  ?s <http://example.org/GO#hasAnnotation> ?gene .
+  ?gene a owl:Class .
+  ?gene rdfs:subClassOf ?og .
+  ?og a owl:Restriction .
+  ?og owl:onProperty ?restriction .
+  ?og owl:someValuesFrom ?gobjective .
+  ?gobjective rdfs:subClassOf* ?scgobjective .
 }
  */
