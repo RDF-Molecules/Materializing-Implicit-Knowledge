@@ -12,14 +12,18 @@ object Main {
     val x = "SaveInFile"
     val inferenceMethod = InferenceMethod.SPARQL
 
-    val files = List( getClass.getClassLoader.getResource("fuhsen.ttl").getPath
+    val files = List(
+                      getClass.getClassLoader.getResource("GO_0040014.nt").getPath //dataset molecules
+                      ,getClass.getClassLoader.getResource("go_2008.owl").getPath //vocabulary e.g. DBpedia Ontology
+                      //,getClass.getClassLoader.getResource("additionalSem.nt").getPath //additional semantics
+                      //,getClass.getClassLoader.getResource("categoryHierarchy.ttl").getPath //specific DBpedia category herachy
                     )
 
     println("Starting the reasoner!")
 
     val infeModel = RdfsReasoner.inferModel(
-      files.map(RDFDataMgr.loadModel(_))
-      , inferenceMethod)
+                                        files.map(RDFDataMgr.loadModel(_))
+                                        , inferenceMethod)
 
     println("Inferred Model Size: "+infeModel.size())
 

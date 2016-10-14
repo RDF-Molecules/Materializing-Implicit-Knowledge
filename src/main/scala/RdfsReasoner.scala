@@ -29,15 +29,37 @@ object RdfsReasoner {
 
   private def inferModelWithJena(model : Model): Model = {
     // RDFS_MEM_RDFS_INF
-    val ontoModel = ModelFactory.createOntologyModel(OntModelSpec.RDFS_MEM)
+    val ontoModel = ModelFactory.createOntologyModel(OntModelSpec.RDFS_MEM_RDFS_INF)
     // Read the RDF/XML file
     ontoModel.add(model)
     //Configuring the reasoner
-    var reasoner = ReasonerRegistry.getRDFSSimpleReasoner()
+    var reasoner = ReasonerRegistry.getRDFSReasoner
     reasoner = reasoner.bindSchema(ontoModel)
     reasoner.setDerivationLogging(true)
     //returning the inferred model
-    ModelFactory.createInfModel(reasoner, model)
+    ModelFactory.createInfModel(reasoner, model).getDeductionsModel
+    //filterInfModel(ModelFactory.createInfModel(reasoner, model).getDeductionsModel)
+  }
+
+  private def filterInfModel(infModel : Model) : Model = {
+    val query = QueryFactory.create(
+      s"""
+         |PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+         |PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+         |PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+         |PREFIX dct: <http://purl.org/dc/terms/>
+         |PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+         |
+         | CONSTRUCT   {
+         |  ?s ?p ?o .
+         |}
+         |WHERE
+         |{
+         |  ?s a foaf:Person .
+         |  ?s ?p ?o .
+         |}
+          """.stripMargin)
+    QueryExecutionFactory.create(query, infModel).execConstruct()
   }
 
   private def inferModelWithSparql(model : Model): Model = {
@@ -48,23 +70,17 @@ object RdfsReasoner {
          |PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
          |PREFIX dct: <http://purl.org/dc/terms/>
          |PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+         |PREFIX owl: <http://www.w3.org/2002/07/owl#>
          |
-         | CONSTRUCT   {
-         |  ?s a ?sc .
-         |  ?s ?sp ?o .
-         |  ?s dct:subject ?broaderSub .
+         |CONSTRUCT   {
+         |  ?s <http://example.org/GO#hasAnnotation> ?sc .
          |}
          |WHERE
          |{
-         |  ?s ?p ?o .
-         |  ?s a foaf:Person .
-         |  OPTIONAL{ foaf:Person rdfs:subClassOf* ?sc . }
-         |  OPTIONAL{ ?p  rdfs:subPropertyOf* ?sp . }
-         |  OPTIONAL{
-         |            ?o  dct:subject ?spb .
-         |            ?spb skos:broader* ?broaderSub .
-         |	          Filter (!isBlank(?broaderSub )) .
-         |          }
+         |  ?s <http://example.org/GO#hasAnnotation> ?o .
+         |  ?o a owl:Class .
+         |  ?o rdfs:subClassOf* ?sc .
+         |  Filter (!isBlank(?sc)) .
          |}
           """.stripMargin)
     QueryExecutionFactory.create(query, model).execConstruct()
@@ -112,5 +128,44 @@ WHERE
             ?spb skos:broader* ?broaderSub .
 	          Filter (!isBlank(?broaderSub )) .
           }
+}
+ */
+
+/*
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+CONSTRUCT   {
+  ?s ?p ?sc .
+  ?s ?sp ?o .
+}
+WHERE
+{
+  ?s ?p ?o .
+  ?o rdfs:subClassOf* ?sc .
+  ?p rdfs:subPropertyOf* ?sp .
+}
+ */
+
+/*
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+CONSTRUCT   {
+  ?s <http://example.org/GO#hasAnnotation> ?sc .
+}
+WHERE
+{
+  ?s <http://example.org/GO#hasAnnotation> ?o .
+  ?o a owl:Class .
+  ?o rdfs:subClassOf* ?sc .
+  Filter (!isBlank(?sc)) .
 }
  */
