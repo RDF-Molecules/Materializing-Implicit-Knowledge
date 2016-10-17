@@ -21,7 +21,7 @@ object RdfsReasoner {
       )
   }
 
-  private def mergeModels(models : List[Model]) : Model = {
+  def mergeModels(models : List[Model]) : Model = {
     val model = ModelFactory.createDefaultModel()
     models.map( current => model.add(current))
     model
