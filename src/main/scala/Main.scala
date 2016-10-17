@@ -13,8 +13,9 @@ object Main {
     val inferenceMethod = InferenceMethod.SPARQL
 
     val files = List(
-                      getClass.getClassLoader.getResource("GO_0040014.nt").getPath //dataset molecules
-                      ,getClass.getClassLoader.getResource("go_2008.owl").getPath //vocabulary e.g. DBpedia Ontology
+                      getClass.getClassLoader.getResource("GO_0060766.nt").getPath //dataset molecules
+                      //,getClass.getClassLoader.getResource("GO_2008_MaterializedAnnotations.nt").getPath //vocabulary e.g. DBpedia Ontology
+                      ,getClass.getClassLoader.getResource("go_2014.owl").getPath //vocabulary e.g. DBpedia Ontology
                       //,getClass.getClassLoader.getResource("additionalSem.nt").getPath //additional semantics
                       //,getClass.getClassLoader.getResource("categoryHierarchy.ttl").getPath //specific DBpedia category herachy
                     )
