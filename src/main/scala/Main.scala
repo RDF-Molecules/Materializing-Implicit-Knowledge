@@ -13,8 +13,8 @@ object Main {
     val inferenceMethod = InferenceMethod.SPARQL
 
     val files = List(
-                      getClass.getClassLoader.getResource("GO_0060766.nt").getPath //dataset molecules
-                      //,getClass.getClassLoader.getResource("GO_2008_MaterializedAnnotations.nt").getPath //vocabulary e.g. DBpedia Ontology
+                      getClass.getClassLoader.getResource("GO_2014_unified_for_materialization.nt").getPath //dataset molecules
+                      ,getClass.getClassLoader.getResource("GO_2014_MaterializedAnnotations.nt").getPath //vocabulary e.g. DBpedia Ontology
                       ,getClass.getClassLoader.getResource("go_2014.owl").getPath //vocabulary e.g. DBpedia Ontology
                       //,getClass.getClassLoader.getResource("additionalSem.nt").getPath //additional semantics
                       //,getClass.getClassLoader.getResource("categoryHierarchy.ttl").getPath //specific DBpedia category herachy
@@ -22,6 +22,7 @@ object Main {
 
     println("Starting the reasoner!")
 
+    //for merging use mergeModels method, for infering use inferModels method
     val infeModel = RdfsReasoner.inferModel(
                                         files.map(RDFDataMgr.loadModel(_))
                                         , inferenceMethod)
